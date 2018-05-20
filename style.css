@@ -30,6 +30,14 @@ header {
     background: deepskyblue;
 }
 
+.ruby {
+    background: red;
+}
+
+.python {
+    background: green;
+}
+
 .button {
     border-width: 5px;
     border-style: solid;

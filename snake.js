@@ -77,7 +77,7 @@ var model = {
             // выставить новый
             this.ruby.coords = this.generateNewRuby(this.python.coords);
         }
-        view.render(this.python, this.ruby, this.field.text);
+        view.render(this.python.coords, this.ruby.coords);
     },
     generateNewRuby: function (pythonCoords) {
         var w, h;
@@ -101,11 +101,9 @@ var model = {
      * @param {{height: number, width: number}} fieldSize  размеры поля
      */
     init: function (fieldSize) {
-        // TODO здесь теперь не текст а размер
-
-        this.field.text = text;
-        this.field.height = text.split('\n').length - 1; //Последнюю строку пока не берем, т.к. возможно не полная.
-        view.render(this.python, this.ruby, this.field.text);
+        this.field.height = fieldSize.height;
+        this.field.width = fieldSize.width;
+        view.render(this.python.coords, this.ruby.coords);
     },
     left: function () {
         this.python.dir--;
@@ -128,84 +126,94 @@ var model = {
 
 
 var view = {
-    pythonView: {
-        horz: '═',
-        vert: '║',
-        tango: {
-            forward: '╔',
-            backward: '╝'
-        },
-        waltz: {
-            forward: '╗',
-            backward: '╚'
-        },
-        getPythonChar: function (python, i) {
-            // Функция возвращает представление конкретного элемента питона
-            var char = this.horz;
-            if (i === 0) {
-                // Первый элемент, сравнить только со вторым
-                char = python.coords[0][0] === python.coords[1][0] ? this.horz : this.vert;
-            } else if (i === python.coords.length - 1) {
-                // Последний элемент, сравнить только с предыдущим
-                char = python.coords[i - 1][0] === python.coords[i][0] ? this.horz : this.vert;
-            } else {
-                // Средний элемент, надо учитывать и предыдущий и следующий
-                if (python.coords[i - 1][0] === python.coords[i + 1][0]) {
-                    char = this.horz;
-                } else if (python.coords[i - 1][1] === python.coords[i + 1][1]) {
-                    char = this.vert;
-                } else {
-                    // Это угловой элемент. Определим диагональ между предыдущим и следующим.  Правая - "танго", левая - "вальс".
-                    // Определим какой элемент находится ниже, а какой выше.
-                    var upper;
-                    var lower;
-                    if (python.coords[i - 1][0] < python.coords[i + 1][0]) {
-                        upper = i - 1;
-                        lower = i + 1;
-                    } else {
-                        upper = i + 1;
-                        lower = i - 1;
-                    }
-                    // Если различие больше чем на 1, то это проход через край и надо интерпретировать наоборот.
-                    if (python.coords[lower][0] - python.coords[upper][0] !== 1) {
-                        upper = upper + lower;
-                        lower = upper - lower;
-                        upper = upper - lower;
-                    }
-                    // Определим верхний правее или левее (правее - "танго", левее - "вальс").
-                    var diagonale = python.coords[upper][1] < python.coords[lower][1] ? 'waltz' : 'tango';
-                    // Если различие больше чем на 1, то это проход через край и надо интерпретировать наоборот.
-                    if (Math.abs(python.coords[upper][1] - python.coords[lower][1]) !== 1) {
-                        if (diagonale === 'waltz') {
-                            diagonale = 'tango';
-                        } else {
-                            diagonale = 'waltz';
-                        }
-                    }
-                    var dance = diagonale === 'waltz' ? this.waltz : this.tango;
-                    // Определим движение танца - "вперед" или "назад".
-                    // Если верхний элемент с текущим на горизонтали, то это "вперед"
-                    char = python.coords[upper][0] === python.coords[i][0] ? dance.forward : dance.backward;
-                }
-            }
-            if (python.eatenRuby.indexOf(i) !== -1) {
-                // Обозначим элемент со съеденным рубином
-                return '<span style="color: #ff0000">' + char + '</span>';
-            } else {
-                return '<span style="color: #00ff00">' + char + '</span>';
-            }
-        }
-    },
+    // pythonView: {
+    //     // horz: '═',
+    //     // vert: '║',
+    //     // tango: {
+    //     //     forward: '╔',
+    //     //     backward: '╝'
+    //     // },
+    //     // waltz: {
+    //     //     forward: '╗',
+    //     //     backward: '╚'
+    //     // },
+    //     getPythonChar: function (python, i) {
+    //         // Функция возвращает представление конкретного элемента питона
+    //         var char = this.horz;
+    //         if (i === 0) {
+    //             // Первый элемент, сравнить только со вторым
+    //             char = python.coords[0][0] === python.coords[1][0] ? this.horz : this.vert;
+    //         } else if (i === python.coords.length - 1) {
+    //             // Последний элемент, сравнить только с предыдущим
+    //             char = python.coords[i - 1][0] === python.coords[i][0] ? this.horz : this.vert;
+    //         } else {
+    //             // Средний элемент, надо учитывать и предыдущий и следующий
+    //             if (python.coords[i - 1][0] === python.coords[i + 1][0]) {
+    //                 char = this.horz;
+    //             } else if (python.coords[i - 1][1] === python.coords[i + 1][1]) {
+    //                 char = this.vert;
+    //             } else {
+    //                 // Это угловой элемент. Определим диагональ между предыдущим и следующим.  Правая - "танго", левая - "вальс".
+    //                 // Определим какой элемент находится ниже, а какой выше.
+    //                 var upper;
+    //                 var lower;
+    //                 if (python.coords[i - 1][0] < python.coords[i + 1][0]) {
+    //                     upper = i - 1;
+    //                     lower = i + 1;
+    //                 } else {
+    //                     upper = i + 1;
+    //                     lower = i - 1;
+    //                 }
+    //                 // Если различие больше чем на 1, то это проход через край и надо интерпретировать наоборот.
+    //                 if (python.coords[lower][0] - python.coords[upper][0] !== 1) {
+    //                     upper = upper + lower;
+    //                     lower = upper - lower;
+    //                     upper = upper - lower;
+    //                 }
+    //                 // Определим верхний правее или левее (правее - "танго", левее - "вальс").
+    //                 var diagonale = python.coords[upper][1] < python.coords[lower][1] ? 'waltz' : 'tango';
+    //                 // Если различие больше чем на 1, то это проход через край и надо интерпретировать наоборот.
+    //                 if (Math.abs(python.coords[upper][1] - python.coords[lower][1]) !== 1) {
+    //                     if (diagonale === 'waltz') {
+    //                         diagonale = 'tango';
+    //                     } else {
+    //                         diagonale = 'waltz';
+    //                     }
+    //                 }
+    //                 var dance = diagonale === 'waltz' ? this.waltz : this.tango;
+    //                 // Определим движение танца - "вперед" или "назад".
+    //                 // Если верхний элемент с текущим на горизонтали, то это "вперед"
+    //                 char = python.coords[upper][0] === python.coords[i][0] ? dance.forward : dance.backward;
+    //             }
+    //         }
+    //         if (python.eatenRuby.indexOf(i) !== -1) {
+    //             // Обозначим элемент со съеденным рубином
+    //             return '<span style="color: #ff0000">' + char + '</span>';
+    //         } else {
+    //             return '<span style="color: #00ff00">' + char + '</span>';
+    //         }
+    //     }
+    // },
 
     /** Элемент с полем */
-    field,
+    field: null,
+
+    /** Имя класса ячейки */
+    cellClassName: 'cell',
+
+    /** Имя класса рубина */
+    rubyClassName: 'ruby',
+
+    /** Имя класса змейки */
+    pythonClassName: 'python',
 
     /**
      * Инициализация представления
+     * @param {Node} field                                 поле
      * @param {{height: number, width: number}} fieldSize  размеры поля
      */
-    init: function (fieldSize) {
-        this.field = document.getElementById('field');
+    init: function (field, fieldSize) {
+        this.field = field;
         // Создаем поле
         for (var h = 0; h < fieldSize.height; h++) {
             var line = document.createElement('div');
@@ -213,59 +221,97 @@ var view = {
             line.classList.add('line');
             for (var w = 0; w < fieldSize.width; w++) {
                 var cell = document.createElement('div');
-                cell.id = 'cell' + h + '-' + w;
-                cell.classList.add('cell');
+                cell.id = this.coordsToId(h, w);
+                cell.classList.add(this.cellClassName);
                 line.appendChild(cell);
             }
             this.field.appendChild(line);
         }
 
     },
-
-    matrixToText: function (matrix) {
-        // console.log(typeof matrix);
-        for (var i = 0; i < matrix.length; i++) {
-            matrix[i] = matrix[i].join('');
-        }
-        // console.log(typeof matrix);
-        return matrix.join('\n');
-    },
-    textToMatrix: function (text) {
-        var matrix = text.split('\n');
-        for (var i = 0; i < matrix.length; i++) {
-            matrix[i] = matrix[i].split('');
-        }
-        return matrix;
-    },
+    //
+    // matrixToText: function (matrix) {
+    //     // console.log(typeof matrix);
+    //     for (var i = 0; i < matrix.length; i++) {
+    //         matrix[i] = matrix[i].join('');
+    //     }
+    //     // console.log(typeof matrix);
+    //     return matrix.join('\n');
+    // },
+    // textToMatrix: function (text) {
+    //     var matrix = text.split('\n');
+    //     for (var i = 0; i < matrix.length; i++) {
+    //         matrix[i] = matrix[i].split('');
+    //     }
+    //     return matrix;
+    // },
     /**
-     *
-     * @param python
-     * @param ruby
-     * @param text
+     * Отрисовать змейку и рубин на поле
+     * @param {[[number]]} pythonCoords координаты змейки
+     * @param {[number]} rubyCoords     координаты рубина
      */
-    render: function (python, ruby, text) {
-        //TODO инициализировать сразу поле во view, не нужно передавать модели. Т.к. это фактически "скин"
-        // Разобьем текст на двумерный массив символов
-        textMatrix = this.textToMatrix(text);
-        // обозначить python
-        for (var i = 0; i < python.coords.length; i++) {
-            textMatrix[python.coords[i][0]][python.coords[i][1]] = this.pythonView.getPythonChar(python, i);
+    render: function (pythonCoords, rubyCoords) {
+        var cells = this.field.getElementsByClassName(this.cellClassName);
+        // Очищаем все ячейки
+        for (var i = 0; i < cells.length; i++) {
+            cells[i].classList.remove(this.rubyClassName, this.pythonClassName);
         }
-        // обозначить ruby
-        textMatrix[ruby.coords[0]][ruby.coords[1]] = '<span style="color: #ff0000">' + ruby.char + '</span>';
-        // найти pre и установить новый текст
-        document.getElementById('textField').innerHTML = this.matrixToText(textMatrix);
+        // Отрисовываем рубин
+        document.getElementById(this.coordsToId(rubyCoords[0], rubyCoords[1])).classList.add(this.rubyClassName);
+
+        // Отрисовываем змейку
+        for (var i = 0; i < pythonCoords.length; i++) {
+            document.getElementById(this.coordsToId(pythonCoords[i][0], pythonCoords[i][1])).classList.add(this.pythonClassName);
+        }
+
+
+        // //TODO инициализировать сразу поле во view, не нужно передавать модели. Т.к. это фактически "скин"
+        // // Разобьем текст на двумерный массив символов
+        // textMatrix = this.textToMatrix(text);
+        // // обозначить python
+        // for (var i = 0; i < python.coords.length; i++) {
+        //     textMatrix[python.coords[i][0]][python.coords[i][1]] = this.pythonView.getPythonChar(python, i);
+        // }
+        // // обозначить ruby
+        // textMatrix[ruby.coords[0]][ruby.coords[1]] = '<span style="color: #ff0000">' + ruby.char + '</span>';
+        // // найти pre и установить новый текст
+        // document.getElementById('textField').innerHTML = this.matrixToText(textMatrix);
     },
     gameover: function () {
         // Отобразить текст, что игра закончилась
         alert('Конец игры');
+    },
+
+    /**
+     * Преобразовать координаты в Id ячейки
+     * @param {number} line   номер строки
+     * @param {number} column номер столбца
+     */
+    coordsToId: function (line, column) {
+        return 'cell' + line + '-' + column;
     }
 };
 
 var controller = {
     timer: '',
-    init: function () {
+    /**
+     * Инициализация контроллера
+     * @param {Node} field поле
+     */
+    init: function (field) {
         this.timer = setInterval(this.moveTimer, 200);
+        field.addEventListener('keydown', function (event) {
+            debugger;
+            switch (event.keyCode) {
+                case 37:
+                    model.left();
+                    return;
+                case 39:
+                    model.rigth();
+                    return;
+            }
+        });
+
     },
     moveTimer: function () {
         model.move();
@@ -278,10 +324,11 @@ var controller = {
 window.onload = init;
 
 function init() {
+    var field = document.getElementById('field');
     var fieldSize = {height: 15, width: 15};
-    view.init(fieldSize);
+    view.init(field, fieldSize);
     model.init(fieldSize);
-    controller.init();
+    controller.init(field);
 }
 
 function left() {
