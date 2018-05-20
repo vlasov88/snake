@@ -72,6 +72,7 @@ var model = {
 
         // проверим что съели новый рубин
         if (headCoord[0] === this.ruby.coords[0] && headCoord[1] === this.ruby.coords[1]) {
+            view.addCounter();
             // "съесть" текущий
             this.python.eatenRuby.push(0); //номер текущего элемента
             // выставить новый
@@ -139,13 +140,21 @@ var view = {
     /** Имя класса змейки */
     pythonClassName: 'python',
 
+    /** Счетчик очков */
+    counter: 0,
+
+    /** Элемент счетчика очков */
+    counterElem: null,
+
     /**
      * Инициализация представления
      * @param {Node} field                                 поле
      * @param {{height: number, width: number}} fieldSize  размеры поля
+     * @param {Node} counter                               элемент счетчика очков
      */
-    init: function (field, fieldSize) {
+    init: function (field, fieldSize, counter) {
         this.field = field;
+        this.counterElem = counter;
         // Создаем поле
         for (var h = 0; h < fieldSize.height; h++) {
             var line = document.createElement('div');
@@ -182,6 +191,15 @@ var view = {
         }
 
     },
+
+    /**
+     * Увеличить счетчик очков
+     */
+    addCounter: function () {
+        this.counter++;
+        this.counterElem.innerHTML = this.counter;
+    },
+
     gameover: function () {
         // Отобразить текст, что игра закончилась
         alert('Конец игры');
@@ -206,7 +224,7 @@ var controller = {
      */
     init: function (field) {
         this.timer = setInterval(this.moveTimer, 200);
-        field.addEventListener('keydown', function (event) {
+        document.addEventListener('keydown', function (event) {
             switch (event.keyCode) {
                 case 37:
                     model.left();
@@ -231,7 +249,7 @@ window.onload = init;
 function init() {
     var field = document.getElementById('field');
     var fieldSize = {height: 15, width: 15};
-    view.init(field, fieldSize);
+    view.init(field, fieldSize, document.getElementById('counter'));
     model.init(fieldSize);
     controller.init(field);
 }
