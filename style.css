@@ -1,0 +1,52 @@
+#wrapper {
+    width: 500px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+#wrapper-inner {
+    border-color: black;
+    border-width: 5px;
+    border-style: solid;
+    border-radius: 30px;
+    padding: 20px;
+}
+
+header {
+    font-size: 50px;
+}
+
+.line {
+    height: 30px;
+}
+
+.cell {
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 2px;
+    padding: 14px 14px;
+    border-color: black;
+    display: inline-block;
+    background: deepskyblue;
+}
+
+.button {
+    border-width: 5px;
+    border-style: solid;
+    border-radius: 20px;
+    border-color: black;
+    width: 150px;
+    display: inline-block;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    background: yellow;
+}
+
+.button-container {
+    width: 100%;
+}
+
+.button.selected {
+    border-style: solid;
+    border-color: deepskyblue;
+}

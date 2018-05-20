@@ -1,6 +1,5 @@
 var model = {
     python: {
-        char: 'S', //"😸",
         dir: 1,
         coords: [
             // [0, 9],
@@ -17,13 +16,11 @@ var model = {
         eatenRuby: []
     },
     ruby: {
-        char: '╬', //"🂽",
         coords: [10, 10]
     },
     field: {
         width: 60,
-        height: 10,
-        text: ''
+        height: 10
     },
     move: function () {
         //console.log("move");
@@ -99,7 +96,13 @@ var model = {
         }
         return false;
     },
-    init: function (text) {
+    /**
+     * Инициализировать модель
+     * @param {{height: number, width: number}} fieldSize  размеры поля
+     */
+    init: function (fieldSize) {
+        // TODO здесь теперь не текст а размер
+
         this.field.text = text;
         this.field.height = text.split('\n').length - 1; //Последнюю строку пока не берем, т.к. возможно не полная.
         view.render(this.python, this.ruby, this.field.text);
@@ -194,6 +197,31 @@ var view = {
         }
     },
 
+    /** Элемент с полем */
+    field,
+
+    /**
+     * Инициализация представления
+     * @param {{height: number, width: number}} fieldSize  размеры поля
+     */
+    init: function (fieldSize) {
+        this.field = document.getElementById('field');
+        // Создаем поле
+        for (var h = 0; h < fieldSize.height; h++) {
+            var line = document.createElement('div');
+            line.id = 'line' + h;
+            line.classList.add('line');
+            for (var w = 0; w < fieldSize.width; w++) {
+                var cell = document.createElement('div');
+                cell.id = 'cell' + h + '-' + w;
+                cell.classList.add('cell');
+                line.appendChild(cell);
+            }
+            this.field.appendChild(line);
+        }
+
+    },
+
     matrixToText: function (matrix) {
         // console.log(typeof matrix);
         for (var i = 0; i < matrix.length; i++) {
@@ -250,13 +278,10 @@ var controller = {
 window.onload = init;
 
 function init() {
-    model.init(document.getElementById('field').innerHTML);
+    var fieldSize = {height: 15, width: 15};
+    view.init(fieldSize);
+    model.init(fieldSize);
     controller.init();
-    document.getElementById('field').onclick = changeDirection;
-}
-
-function changeDirection() {
-    model.rigth();
 }
 
 function left() {
