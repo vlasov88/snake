@@ -126,74 +126,6 @@ var model = {
 
 
 var view = {
-    // pythonView: {
-    //     // horz: '═',
-    //     // vert: '║',
-    //     // tango: {
-    //     //     forward: '╔',
-    //     //     backward: '╝'
-    //     // },
-    //     // waltz: {
-    //     //     forward: '╗',
-    //     //     backward: '╚'
-    //     // },
-    //     getPythonChar: function (python, i) {
-    //         // Функция возвращает представление конкретного элемента питона
-    //         var char = this.horz;
-    //         if (i === 0) {
-    //             // Первый элемент, сравнить только со вторым
-    //             char = python.coords[0][0] === python.coords[1][0] ? this.horz : this.vert;
-    //         } else if (i === python.coords.length - 1) {
-    //             // Последний элемент, сравнить только с предыдущим
-    //             char = python.coords[i - 1][0] === python.coords[i][0] ? this.horz : this.vert;
-    //         } else {
-    //             // Средний элемент, надо учитывать и предыдущий и следующий
-    //             if (python.coords[i - 1][0] === python.coords[i + 1][0]) {
-    //                 char = this.horz;
-    //             } else if (python.coords[i - 1][1] === python.coords[i + 1][1]) {
-    //                 char = this.vert;
-    //             } else {
-    //                 // Это угловой элемент. Определим диагональ между предыдущим и следующим.  Правая - "танго", левая - "вальс".
-    //                 // Определим какой элемент находится ниже, а какой выше.
-    //                 var upper;
-    //                 var lower;
-    //                 if (python.coords[i - 1][0] < python.coords[i + 1][0]) {
-    //                     upper = i - 1;
-    //                     lower = i + 1;
-    //                 } else {
-    //                     upper = i + 1;
-    //                     lower = i - 1;
-    //                 }
-    //                 // Если различие больше чем на 1, то это проход через край и надо интерпретировать наоборот.
-    //                 if (python.coords[lower][0] - python.coords[upper][0] !== 1) {
-    //                     upper = upper + lower;
-    //                     lower = upper - lower;
-    //                     upper = upper - lower;
-    //                 }
-    //                 // Определим верхний правее или левее (правее - "танго", левее - "вальс").
-    //                 var diagonale = python.coords[upper][1] < python.coords[lower][1] ? 'waltz' : 'tango';
-    //                 // Если различие больше чем на 1, то это проход через край и надо интерпретировать наоборот.
-    //                 if (Math.abs(python.coords[upper][1] - python.coords[lower][1]) !== 1) {
-    //                     if (diagonale === 'waltz') {
-    //                         diagonale = 'tango';
-    //                     } else {
-    //                         diagonale = 'waltz';
-    //                     }
-    //                 }
-    //                 var dance = diagonale === 'waltz' ? this.waltz : this.tango;
-    //                 // Определим движение танца - "вперед" или "назад".
-    //                 // Если верхний элемент с текущим на горизонтали, то это "вперед"
-    //                 char = python.coords[upper][0] === python.coords[i][0] ? dance.forward : dance.backward;
-    //             }
-    //         }
-    //         if (python.eatenRuby.indexOf(i) !== -1) {
-    //             // Обозначим элемент со съеденным рубином
-    //             return '<span style="color: #ff0000">' + char + '</span>';
-    //         } else {
-    //             return '<span style="color: #00ff00">' + char + '</span>';
-    //         }
-    //     }
-    // },
 
     /** Элемент с полем */
     field: null,
@@ -229,22 +161,7 @@ var view = {
         }
 
     },
-    //
-    // matrixToText: function (matrix) {
-    //     // console.log(typeof matrix);
-    //     for (var i = 0; i < matrix.length; i++) {
-    //         matrix[i] = matrix[i].join('');
-    //     }
-    //     // console.log(typeof matrix);
-    //     return matrix.join('\n');
-    // },
-    // textToMatrix: function (text) {
-    //     var matrix = text.split('\n');
-    //     for (var i = 0; i < matrix.length; i++) {
-    //         matrix[i] = matrix[i].split('');
-    //     }
-    //     return matrix;
-    // },
+
     /**
      * Отрисовать змейку и рубин на поле
      * @param {[[number]]} pythonCoords координаты змейки
@@ -264,18 +181,6 @@ var view = {
             document.getElementById(this.coordsToId(pythonCoords[i][0], pythonCoords[i][1])).classList.add(this.pythonClassName);
         }
 
-
-        // //TODO инициализировать сразу поле во view, не нужно передавать модели. Т.к. это фактически "скин"
-        // // Разобьем текст на двумерный массив символов
-        // textMatrix = this.textToMatrix(text);
-        // // обозначить python
-        // for (var i = 0; i < python.coords.length; i++) {
-        //     textMatrix[python.coords[i][0]][python.coords[i][1]] = this.pythonView.getPythonChar(python, i);
-        // }
-        // // обозначить ruby
-        // textMatrix[ruby.coords[0]][ruby.coords[1]] = '<span style="color: #ff0000">' + ruby.char + '</span>';
-        // // найти pre и установить новый текст
-        // document.getElementById('textField').innerHTML = this.matrixToText(textMatrix);
     },
     gameover: function () {
         // Отобразить текст, что игра закончилась
@@ -294,6 +199,7 @@ var view = {
 
 var controller = {
     timer: '',
+
     /**
      * Инициализация контроллера
      * @param {Node} field поле
@@ -301,7 +207,6 @@ var controller = {
     init: function (field) {
         this.timer = setInterval(this.moveTimer, 200);
         field.addEventListener('keydown', function (event) {
-            debugger;
             switch (event.keyCode) {
                 case 37:
                     model.left();
@@ -330,33 +235,3 @@ function init() {
     model.init(fieldSize);
     controller.init(field);
 }
-
-function left() {
-    model.left();
-}
-
-function rigth() {
-    model.rigth();
-}
-
-
-// replaceCharAt: function(text, position, char) {
-//     return text.substr(0, position) + char + text.substr(position + 1);
-// },
-
-
-// //textMatrix: [],
-// markAtCoord: function(text, coord, char) {
-//     return replaceCharAt(text, findPosition(text, coord), char);
-// },
-
-//     findPosition: function(text, coord) {
-//     var position = 0;
-//     // разделим на массив строк
-//     var strings = text.split("\n");
-//     for (var i = 0; i < coord[0]; i++) {
-//         position = position + strings[i].length + 1; // +1 символ перевода строки
-//     }
-//     position = position + coord[1];
-//     return position;
-// },
