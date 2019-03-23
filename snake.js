@@ -234,6 +234,15 @@ var controller = {
                     return;
             }
         });
+        var handleCoord = function(x) {
+          x < document.documentElement.clientWidth / 2 ? model.left() : model.rigth();
+        };
+        document.addEventListener('touchstart', function(event) {
+          handleCoord(event.touches[0].clientX);
+        });
+        document.addEventListener('click', function(event) {
+          handleCoord(event.clientX);
+        });
 
     },
     moveTimer: function () {
